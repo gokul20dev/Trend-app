@@ -102,7 +102,7 @@ resource "aws_iam_role_policy_attachment" "ec2_attach" {
 
 resource "aws_instance" "jenkins_server" {
   ami                         = "ami-0c55b159cbfafe1f0" # Amazon Linux 2
-  instance_type               = "t2.m"
+  instance_type               = "instance_type"
   subnet_id                   = aws_subnet.public_subnet.id
   key_name                    = "aws-key" # Replace with your key name
   associate_public_ip_address = true
