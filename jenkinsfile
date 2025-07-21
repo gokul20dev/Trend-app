@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'gokul603/trend-static-app:v1'
+        KUBECONFIG_PATH = '/tmp/kubeconfig'
+    }
+
+    stages {
+
+        stage('Clone Repo') {
+            steps {
+                git branch: 'main', url: 'https://github.com/gokul20dev/Trend-app.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                withCredentials([file(credentialsId: 'kubecongi-aws', variable: 'KUBECONFIG')]) {
+                    sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl apply -f k8s/deployment.yml --validate=false
+                    '''
+                }
+            }
+        }
+    }
+}
+
