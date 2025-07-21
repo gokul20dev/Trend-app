@@ -1,3 +1,4 @@
- output "ec2_ap_south_1_public_ip" {
-   value = aws_instance.ec2_aps1.public_ip
- }
+output "jenkins_public_ip" {
+  description = "Public IP of the Jenkins EC2 instance"
+  value       = aws_instance.jenkins_server.public_ip
+}
